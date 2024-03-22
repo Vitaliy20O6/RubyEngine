@@ -2,15 +2,9 @@
 
 #include "VertexBuffer.hpp"
 
-namespace RubyEngine 
-{
+namespace RubyEngine {
 
-    class VertexArray 
-    {
-    private:
-        unsigned int m_id = 0;
-        unsigned int m_elements_count = 0;
-
+    class VertexArray {
     public:
         VertexArray();
         ~VertexArray();
@@ -22,7 +16,11 @@ namespace RubyEngine
 
         void add_buffer(const VertexBuffer& vertex_buffer);
         void bind() const;
-        static void unbind();    
+        static void unbind();
+
+    private:
+        unsigned int m_id = 0;
+        unsigned int m_elements_count = 0;
     };
 
 }
