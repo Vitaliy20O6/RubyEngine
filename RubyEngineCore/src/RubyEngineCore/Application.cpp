@@ -33,6 +33,14 @@ namespace RubyEngine
 				LOG_INFO("[Resized] Changet size to {0}x{1}", event.width, event.height);
 			}
 		);
+
+		m_event_dispatcher.add_event_listener<EventWindowClose>(
+			[&](EventWindowClose& event)
+			{
+				LOG_INFO("[WindowClose]");
+				m_bCloseWindow = true;
+			}
+		);
 		
 		m_pWindow->set_event_callback(
 			[&](BaseEvent& event)
@@ -46,6 +54,7 @@ namespace RubyEngine
 			m_pWindow->on_update();
 			on_update();
 		}
+		m_pWindow = nullptr;
         return 0;
 	}
 }

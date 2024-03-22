@@ -92,4 +92,14 @@ namespace RubyEngine
 			return type;
 		}
 	};
+
+	struct EventWindowClose : public BaseEvent
+	{
+		static const EventType type = EventType::WindowClose;
+
+		virtual EventType get_type() const override
+		{
+			return type;
+		}
+	};
 }

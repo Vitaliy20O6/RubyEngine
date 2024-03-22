@@ -147,6 +147,16 @@ namespace RubyEngine
             }
         );
 
+        glfwSetWindowCloseCallback(m_pWindow,
+            [](GLFWwindow* pWindow)
+            {
+                WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
+
+                EventWindowClose event;
+                data.eventCallbackFn(event);
+            }
+        );
+
         glfwSetFramebufferSizeCallback(m_pWindow,
             [](GLFWwindow* pWindow, int width, int height)
             {
