@@ -1,4 +1,5 @@
 #pragma once
+
 #include "VertexBuffer.hpp"
 
 namespace RubyEngine 
@@ -21,9 +22,7 @@ namespace RubyEngine
 
         void add_buffer(const VertexBuffer& vertex_buffer);
         void bind() const;
-        static void unbind();
-
-    
+        static void unbind();    
     };
 
 }

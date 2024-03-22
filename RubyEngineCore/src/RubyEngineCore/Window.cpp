@@ -27,6 +27,12 @@ namespace RubyEngine
         0.0f,  0.0f, 1.0f
     };
 
+    GLfloat positions_colors[] = {
+        1.0f,  0.0f, 0.0f,    1.0f,  1.0f, 0.0f,
+        0.0f,  1.0f, 0.0f,    0.0f,  1.0f, 1.0f,
+        0.0f,  0.0f, 1.0f,    1.0f,  0.0f, 1.0f
+    };
+
     const char* vertex_shader =
         "#version 460\n"
         "layout(location = 0) in vec3 vertex_position;"
@@ -48,7 +54,10 @@ namespace RubyEngine
     std::unique_ptr<ShaderProgram> p_shader_program;
     std::unique_ptr<VertexBuffer> p_points_vbo;
     std::unique_ptr<VertexBuffer> p_colors_vbo;
-    std::unique_ptr<VertexArray> p_vao;    
+    std::unique_ptr<VertexArray> p_vao_double;
+
+    std::unique_ptr<VertexBuffer> p_positions_colors_vbo;
+    std::unique_ptr<VertexArray> p_vao_single;
 
 	Window::Window(std::string title, const unsigned int width, const unsigned int height)
         :m_data({ std::move(title), width, height })
@@ -72,7 +81,7 @@ namespace RubyEngine
         glClear(GL_COLOR_BUFFER_BIT);
 
         p_shader_program->bind();
-        p_vao->bind();
+        p_vao_double->bind();
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
 
@@ -176,10 +185,10 @@ namespace RubyEngine
 
         p_points_vbo = std::make_unique<VertexBuffer>(points, sizeof(points));
         p_colors_vbo = std::make_unique<VertexBuffer>(colors, sizeof(colors));
-        p_vao = std::make_unique<VertexArray>();
+        p_vao_double = std::make_unique<VertexArray>();
         
-        p_vao->add_buffer(*p_points_vbo);
-        p_vao->add_buffer(*p_colors_vbo);
+        p_vao_double->add_buffer(*p_points_vbo);
+        p_vao_double->add_buffer(*p_colors_vbo);
         return 0;
 	}
 	void Window::shutdown()

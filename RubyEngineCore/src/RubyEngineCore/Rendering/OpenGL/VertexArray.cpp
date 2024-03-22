@@ -54,5 +54,19 @@ namespace RubyEngine {
         glVertexAttribPointer(m_elements_count, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
         ++m_elements_count;
+
+        for (const BufferElement& current_element : vertex_buffer.get_layout().get_elements())
+        {
+            glEnableVertexAttribArray(m_elements_count);
+            glVertexAttribPointer(
+                m_elements_count,
+                static_cast<GLint>(current_element.components_count),
+                current_element.component_type,
+                GL_FALSE,
+                static_cast<GLsizei>(vertex_buffer.get_layout().get_stride()),
+                reinterpret_cast<const void*>(current_element.offset)
+            );
+            ++m_elements_count;
+        }
     }
 }
