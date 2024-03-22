@@ -16,7 +16,7 @@ int main()
 {
 	auto test_app = std::make_unique<TestApp>();
 
-	int returnCode = test_app->startApp(1024,768, "Gamee");
+	int returnCode = test_app->startApp(1024,768, "RubyEngine Editior");
 	std::cin.get();
 	return returnCode;
 }
