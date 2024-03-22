@@ -11,12 +11,15 @@ set(ENGINE_PUBLIC_INCLUDES
 set(ENGINE_PRIVATE_INCLUDES
 	src/RubyEngineCore/Window.hpp
 	src/RubyEngineCore/Rendering/OpenGL/ShaderProgram.hpp
+	src/RubyEngineCore/Rendering/OpenGL/VertexBuffer.hpp
+
 )
 
 set(ENGINE_PRIVATE_SOURCES
 	src/RubyEngineCore/Application.cpp
 	src/RubyEngineCore/Window.cpp
 	src/RubyEngineCore/Rendering/OpenGL/ShaderProgram.cpp
+	src/RubyEngineCore/Rendering/OpenGL/VertexBuffer.cpp
 
 )
 set(ENGINE_ALL_SOURCES
