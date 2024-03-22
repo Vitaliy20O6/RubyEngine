@@ -3,6 +3,8 @@
 #include "RubyEngineCore/Rendering/OpenGL/ShaderProgram.hpp"
 #include "RubyEngineCore/Rendering/OpenGL/VertexBuffer.hpp"
 #include "RubyEngineCore/Rendering/OpenGL/VertexArray.hpp"
+#include "RubyEngineCore/Rendering/OpenGL/IndexBuffer.hpp"
+
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -16,9 +18,14 @@ namespace RubyEngine
     static bool s_GLFW_initialized = false;
 
     GLfloat positions_colors[] = {
-        0.0f,  0.5f, 0.0f,   1.0f,  1.0f, 0.0f,
+       -0.5f, -0.5f, 0.0f,   1.0f,  1.0f, 0.0f,
         0.5f, -0.5f, 0.0f,   0.0f,  1.0f, 1.0f,
-       -0.5f, -0.5f, 0.0f,   1.0f,  0.0f, 1.0f
+       -0.5f,  0.5f, 0.0f,   1.0f,  0.0f, 1.0f,
+        0.5f,  0.5f, 0.0f,   1.0f,  0.0f, 0.0f,
+    };
+
+    GLuint indices[] = {
+        0,1,2,3,2,1
     };
 
     const char* vertex_shader =
@@ -40,8 +47,8 @@ namespace RubyEngine
         "}";
 
     std::unique_ptr<ShaderProgram> p_shader_program;
-
     std::unique_ptr<VertexBuffer> p_positions_colors_vbo;
+    std::unique_ptr<IndexBuffer> p_index_buffer;
     std::unique_ptr<VertexArray> p_vao;
 
 	Window::Window(std::string title, const unsigned int width, const unsigned int height)
@@ -145,9 +152,10 @@ namespace RubyEngine
 
         p_vao = std::make_unique<VertexArray>();
         p_positions_colors_vbo = std::make_unique<VertexBuffer>(positions_colors, sizeof(positions_colors), buffer_layout_2vec3);
+        p_index_buffer = std::make_unique<IndexBuffer>(indices, sizeof(indices) / sizeof(GLuint));
 
-        p_vao->add_buffer(*p_positions_colors_vbo);
-
+        p_vao->add_vertex_buffer(*p_positions_colors_vbo);
+        p_vao->set_index_buffer(*p_index_buffer);
         return 0;
 	}
 
@@ -158,7 +166,7 @@ namespace RubyEngine
 
         p_shader_program->bind();
         p_vao->bind();
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(p_vao->get_indices_count()), GL_UNSIGNED_INT, nullptr);
 
         ImGuiIO& io = ImGui::GetIO();
         io.DisplaySize.x = static_cast<float>(get_width());
