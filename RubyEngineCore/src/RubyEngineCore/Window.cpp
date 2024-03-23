@@ -5,13 +5,15 @@
 #include "RubyEngineCore/Rendering/OpenGL/VertexArray.hpp"
 #include "RubyEngineCore/Rendering/OpenGL/IndexBuffer.hpp"
 
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
+
+#include <glm/mat3x3.hpp>
+#include <glm/trigonometric.hpp>
 
 namespace RubyEngine
 {
@@ -28,28 +30,34 @@ namespace RubyEngine
         0,1,2,3,2,1
     };
 
-    const char* vertex_shader =
-        "#version 460\n"
-        "layout(location = 0) in vec3 vertex_position;"
-        "layout(location = 1) in vec3 vertex_color;"
-        "out vec3 color;"
-        "void main() {"
-        "   color = vertex_color;"
-        "   gl_Position = vec4(vertex_position, 1.0);"
-        "}";
+    const char* vertex_shader = 
+        R"(#version 460
+        layout(location = 0) in vec3 vertex_position;
+        layout(location = 1) in vec3 vertex_color;
+        uniform mat4 model_matrix;
+        out vec3 color;
+        void main() {
+            color = vertex_color;
+            gl_Position = model_matrix * vec4(vertex_position, 1.0);
+        }
+        )";
 
-    const char* fragment_shader =
-        "#version 460\n"
-        "in vec3 color;"
-        "out vec4 frag_color;"
-        "void main() {"
-        "   frag_color = vec4(color, 1.0);"
-        "}";
+    const char* fragment_shader = 
+        R"(#version 460
+        in vec3 color;
+        out vec4 frag_color;
+        void main() {
+           frag_color = vec4(color, 1.0);
+        }
+        )";
 
     std::unique_ptr<ShaderProgram> p_shader_program;
     std::unique_ptr<VertexBuffer> p_positions_colors_vbo;
     std::unique_ptr<IndexBuffer> p_index_buffer;
     std::unique_ptr<VertexArray> p_vao;
+    float scale[3] = { 1.f, 1.f, 1.f };
+    float rotate = 0.f;
+    float translate[3] = { 0.f, 0.f, 1.f };
 
 	Window::Window(std::string title, const unsigned int width, const unsigned int height)
         :m_data({ std::move(title), width, height })
@@ -156,6 +164,19 @@ namespace RubyEngine
 
         p_vao->add_vertex_buffer(*p_positions_colors_vbo);
         p_vao->set_index_buffer(*p_index_buffer);
+
+        glm::mat3 mat_1(4, 0, 0, 2, 8, 1, 0, 1, 0);
+        glm::mat3 mat_2(4, 2, 9, 2, 0, 4, 1, 4, 2);
+        glm::mat3 res = mat_1 * mat_2;
+
+        LOG_INFO("");
+        LOG_INFO("|{0:3} {1:3} {2:3}|", res[0][0], res[1][0], res[2][0]);
+        LOG_INFO("|{0:3} {1:3} {2:3}|", res[0][1], res[1][1], res[2][1]);
+        LOG_INFO("|{0:3} {1:3} {2:3}|", res[0][2], res[1][2], res[2][2]);
+        LOG_INFO("");
+
+
+
         return 0;
 	}
 
@@ -163,10 +184,6 @@ namespace RubyEngine
     {
         glClearColor(m_background_color[0], m_background_color[1], m_background_color[2], m_background_color[3]);
         glClear(GL_COLOR_BUFFER_BIT);
-
-        p_shader_program->bind();
-        p_vao->bind();
-        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(p_vao->get_indices_count()), GL_UNSIGNED_INT, nullptr);
 
         ImGuiIO& io = ImGui::GetIO();
         io.DisplaySize.x = static_cast<float>(get_width());
@@ -180,9 +197,38 @@ namespace RubyEngine
 
         ImGui::Begin("Background Color");
         ImGui::ColorEdit4("Change color", m_background_color);
+        ImGui::SliderFloat3("Scale", scale, 0.f, 2.f); 
+        ImGui::SliderFloat("Rotation", &rotate, 0.f, 360.f);
+        ImGui::SliderFloat3("Translation", translate, -1.f, 1.f);
+
+        p_shader_program->bind();
+
+        glm::mat4 scale_matrix(scale[0],   0,          0,          0,
+                               0,          scale[1],   0,          0,
+                               0,          0,          scale[2],   0,
+                               0,          0,          0,          1);
+
+
+        float rotate_radians = glm::radians(rotate);
+        glm::mat4 rotate_matrix( cos(rotate_radians), sin(rotate_radians),  0,  0,
+                                -sin(rotate_radians), cos(rotate_radians),  0,  0,
+                                0,                        0,                        1,  0,
+                                0,                        0,                        0,  1);
+
+        glm::mat4 translate_matrix(1,               0,              0,              0,
+                                       0,               1,              0,              0,
+                                       0,               0,              1,              0,
+                                       translate[0],   translate[1],  translate[2],  1);
+
+        glm::mat4 model_matrix = translate_matrix * rotate_matrix * scale_matrix;
+        p_shader_program->setMatrix4("model_matrix", model_matrix);
+
+        p_vao->bind();
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(p_vao->get_indices_count()), GL_UNSIGNED_INT, nullptr);
+
         ImGui::End();
 
-        ImGui::Render();
+        ImGui::Render(); 
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(m_pWindow);
