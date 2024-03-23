@@ -203,22 +203,34 @@ namespace RubyEngine
 
         p_shader_program->bind();
 
-        glm::mat4 scale_matrix(scale[0],   0,          0,          0,
-                               0,          scale[1],   0,          0,
-                               0,          0,          scale[2],   0,
-                               0,          0,          0,          1);
-
-
+        // SCALE
+        glm::mat4 scale_matrix(
+            scale[0],   0,          0,          0,
+            0,          scale[1],   0,          0,
+            0,          0,          scale[2],   0,
+            0,          0,          0,          1
+        );
+        //
+        
+        // ROTATE
         float rotate_radians = glm::radians(rotate);
-        glm::mat4 rotate_matrix( cos(rotate_radians), sin(rotate_radians),  0,  0,
-                                -sin(rotate_radians), cos(rotate_radians),  0,  0,
-                                0,                        0,                        1,  0,
-                                0,                        0,                        0,  1);
 
-        glm::mat4 translate_matrix(1,               0,              0,              0,
-                                       0,               1,              0,              0,
-                                       0,               0,              1,              0,
-                                       translate[0],   translate[1],  translate[2],  1);
+        glm::mat4 rotate_matrix(
+            cos(rotate_radians), sin(rotate_radians),  0,  0,
+           -sin(rotate_radians), cos(rotate_radians),  0,  0,
+            0,                        0,                        1,  0,
+            0,                        0,                        0,  1
+        );
+        //
+        
+        // TRANSLATE
+        glm::mat4 translate_matrix(
+            1,            0,            0,            0,
+            0,            1,            0,            0,
+            0,            0,            1,            0,
+            translate[0], translate[1], translate[2], 1
+        );
+        //
 
         glm::mat4 model_matrix = translate_matrix * rotate_matrix * scale_matrix;
         p_shader_program->setMatrix4("model_matrix", model_matrix);
