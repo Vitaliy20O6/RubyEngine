@@ -6,7 +6,8 @@
 #include "RubyEngineCore/Rendering/OpenGL/IndexBuffer.hpp"
 #include "RubyEngineCore/Camera.hpp"
 
-#include <glad/glad.h>
+#include "RubyEngineCore/Rendering/OpenGL/Renderer_OpenGL.hpp"
+
 #include <GLFW/glfw3.h>
 
 #include <imgui/imgui.h>
@@ -18,8 +19,6 @@
 
 namespace RubyEngine
 {
-    static bool s_GLFW_initialized = false;
-
     GLfloat positions_colors[] = {
        -0.5f, -0.5f, 0.0f,   1.0f,  1.0f, 0.0f,
         0.5f, -0.5f, 0.0f,   0.0f,  1.0f, 1.0f,
@@ -86,29 +85,27 @@ namespace RubyEngine
 	{
         LOG_INFO("Creating window \"{0}\" window size: {1}x{2}", m_data.title, m_data.width, m_data.height);
 
-        if (!s_GLFW_initialized)
+        glfwSetErrorCallback([](int error_code, const char* description)
         {
-            if (!glfwInit())
-            {
-                LOG_CRIT("Can't initialize GLFW!");
-                return -1;
-            }
-            s_GLFW_initialized = true;
+                LOG_CRIT("GLFW error: {0}", description);
+        });
+
+        if (!glfwInit())
+        {
+            LOG_CRIT("Can't initialize GLFW!");
+            return -1;
         }
 
         m_pWindow = glfwCreateWindow(m_data.width, m_data.height, m_data.title.c_str(), nullptr, nullptr);
         if (!m_pWindow)
         {
             LOG_CRIT("Can't create window {0}", m_data.title);
-            glfwTerminate();
             return -2;
         }
 
-        glfwMakeContextCurrent(m_pWindow);
-
-        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+        if (!Renderer_OpenGL::init(m_pWindow))
         {
-            LOG_CRIT("Failed to init GLAD");
+            LOG_CRIT("Failed to init OpenGL renderer");
             return -3;
         }
 
@@ -120,7 +117,6 @@ namespace RubyEngine
                 WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
                 data.width = width;
                 data.height = height;
-
                 EventWindowResize event(width, height);
                 data.eventCallbackFn(event);
             }
@@ -130,7 +126,6 @@ namespace RubyEngine
             [](GLFWwindow* pWindow, double x, double y)
             {
                 WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
-
                 EventMouseMoved event(x, y);
                 data.eventCallbackFn(event);
             }
@@ -140,7 +135,6 @@ namespace RubyEngine
             [](GLFWwindow* pWindow)
             {
                 WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
-
                 EventWindowClose event;
                 data.eventCallbackFn(event);
             }
@@ -149,7 +143,7 @@ namespace RubyEngine
         glfwSetFramebufferSizeCallback(m_pWindow,
             [](GLFWwindow* pWindow, int width, int height)
             {
-                glViewport(0, 0, width, height);
+                Renderer_OpenGL::set_viewport(width, height);
             }
         );
 
@@ -172,25 +166,13 @@ namespace RubyEngine
         p_vao->add_vertex_buffer(*p_positions_colors_vbo);
         p_vao->set_index_buffer(*p_index_buffer);
 
-        glm::mat3 mat_1(4, 0, 0, 2, 8, 1, 0, 1, 0);
-        glm::mat3 mat_2(4, 2, 9, 2, 0, 4, 1, 4, 2);
-        glm::mat3 res = mat_1 * mat_2;
-
-        LOG_INFO("");
-        LOG_INFO("|{0:3} {1:3} {2:3}|", res[0][0], res[1][0], res[2][0]);
-        LOG_INFO("|{0:3} {1:3} {2:3}|", res[0][1], res[1][1], res[2][1]);
-        LOG_INFO("|{0:3} {1:3} {2:3}|", res[0][2], res[1][2], res[2][2]);
-        LOG_INFO("");
-
-
-
         return 0;
 	}
 
     void Window::on_update()
     {
-        glClearColor(m_background_color[0], m_background_color[1], m_background_color[2], m_background_color[3]);
-        glClear(GL_COLOR_BUFFER_BIT);
+        Renderer_OpenGL::set_clear_color(m_background_color[0], m_background_color[1], m_background_color[2], m_background_color[3]);
+        Renderer_OpenGL::clear();
 
         ImGuiIO& io = ImGui::GetIO();
         io.DisplaySize.x = static_cast<float>(get_width());
@@ -255,9 +237,7 @@ namespace RubyEngine
 
         p_shader_program->setMatrix4("view_projection_matrix", camera.get_projection_matrix() * camera.get_view_matrix());
 
-        //view_projection_matrix
-        p_vao->bind();
-        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(p_vao->get_indices_count()), GL_UNSIGNED_INT, nullptr);
+        Renderer_OpenGL::draw(*p_vao);
 
         ImGui::End();
 
@@ -268,8 +248,16 @@ namespace RubyEngine
         glfwPollEvents();
     }
 
-	void Window::shutdown()
-	{
+    void Window::shutdown()
+    {
+        ImGui_ImplGlfw_Shutdown();
+        ImGui_ImplOpenGL3_Shutdown();
+
+        if (ImGui::GetCurrentContext())
+        {        
+            ImGui::DestroyContext();
+        }
+
         glfwDestroyWindow(m_pWindow);
         glfwTerminate();
 	}
