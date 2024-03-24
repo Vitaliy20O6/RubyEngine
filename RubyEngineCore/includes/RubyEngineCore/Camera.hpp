@@ -24,8 +24,8 @@ namespace RubyEngine
 		void set_position_rotation(const glm::vec3& position, const glm::vec3& rotation);
 		void set_projection_mode(const ProjectionMode projection_mode);
 
-		glm::mat4 get_view_matrix() const { return m_view_matrix; }
-		glm::mat4 get_projection_matrix() const { return m_projection_matrix; }
+		const glm::mat4& get_view_matrix();
+		const glm::mat4& get_projection_matrix() const { return m_projection_matrix; }
 
 		void move_forward(const float delta);
 		void move_right(const float delta);
@@ -37,7 +37,7 @@ namespace RubyEngine
 		*	movement_delta.X - forward movement_delta.Y - right, movement_delta.Z - up
 		*	rotation_delta.X - roll, rotation_delta.Y - pitch, rotation_delta.Z - yaw 
 		*/
-		void add_movement_and_rotation(const glm::vec3 movement_delta, const glm::vec3 rotation_delta);
+		void add_movement_and_rotation(const glm::vec3& movement_delta, const glm::vec3& rotation_delta);
 
 
 	private:
@@ -59,5 +59,7 @@ namespace RubyEngine
 
 		glm::mat4 m_view_matrix;
 		glm::mat4 m_projection_matrix;
+
+		bool m_update_view_matrix = false;
 	};
 }

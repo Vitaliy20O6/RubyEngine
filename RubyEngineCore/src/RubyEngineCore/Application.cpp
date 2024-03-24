@@ -62,7 +62,7 @@ namespace RubyEngine
 	float rotate = 0.f;
 	float translate[3] = { 0.f, 0.f, 0.f };
 
-	float m_background_color[4] = { 0.f, 0.f, 0.f, 0.f };
+	float m_background_color[4] = { 0.3125f, 0.078125f, 0.46875f, 0.f };
 
 	Application::Application()
 	{
@@ -126,6 +126,24 @@ namespace RubyEngine
 					LOG_INFO("[KeyReleased] {0}", static_cast<char>(event.key_code));
 				}
 				Input::ReleaseKey(event.key_code);
+			}
+		);
+
+		m_event_dispatcher.add_event_listener<EventMouseButtonPressed>(
+			[&](EventMouseButtonPressed& event)
+			{
+				LOG_INFO("[Mouse button pressed: {0}, at ({1}, {2})", event.mouse_button, event.x_pos, event.y_pos);
+				Input::PressMouseButton(event.mouse_button);
+				on_mouse_button_event(event.mouse_button, event.x_pos, event.y_pos, true);
+			}
+		);
+
+		m_event_dispatcher.add_event_listener<EventMouseButtonReleased>(
+			[&](EventMouseButtonReleased& event)
+			{
+				LOG_INFO("[Mouse button released: {0}, at ({1}, {2})", event.mouse_button, event.x_pos, event.y_pos);
+				Input::ReleaseMouseButton(event.mouse_button);
+				on_mouse_button_event(event.mouse_button, event.x_pos, event.y_pos, false);
 			}
 		);
 		
@@ -222,5 +240,9 @@ namespace RubyEngine
 		}
 		m_pWindow = nullptr;
         return 0;
+	}
+	glm::vec2 Application::get_current_cursor_pos() const
+	{
+		return m_pWindow->get_current_cursor_pos();
 	}
 }
