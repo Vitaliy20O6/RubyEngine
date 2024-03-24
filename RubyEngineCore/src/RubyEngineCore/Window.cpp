@@ -1,12 +1,8 @@
 #include "RubyEngineCore/Window.hpp"
 #include "RubyEngineCore/Logs.hpp"
-#include "RubyEngineCore/Rendering/OpenGL/ShaderProgram.hpp"
-#include "RubyEngineCore/Rendering/OpenGL/VertexBuffer.hpp"
-#include "RubyEngineCore/Rendering/OpenGL/VertexArray.hpp"
-#include "RubyEngineCore/Rendering/OpenGL/IndexBuffer.hpp"
-#include "RubyEngineCore/Camera.hpp"
-#include "RubyEngineCore/Rendering/OpenGL/Renderer_OpenGL.hpp"
+
 #include "RubyEngineCore/Modules/UIModule.hpp"
+#include "RubyEngineCore/Rendering/OpenGL/Renderer_OpenGL.hpp"
 
 #include <GLFW/glfw3.h>
 
@@ -14,57 +10,8 @@
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 
-#include <glm/mat3x3.hpp>
-#include <glm/trigonometric.hpp>
-
 namespace RubyEngine
 {
-    GLfloat positions_colors[] = {
-       -0.5f, -0.5f, 0.0f,   1.0f,  1.0f, 0.0f,
-        0.5f, -0.5f, 0.0f,   0.0f,  1.0f, 1.0f,
-       -0.5f,  0.5f, 0.0f,   1.0f,  0.0f, 1.0f,
-        0.5f,  0.5f, 0.0f,   1.0f,  0.0f, 0.0f,
-    };
-
-    GLuint indices[] = {
-        0,1,2,3,2,1
-    };
-
-    const char* vertex_shader = 
-        R"(#version 460
-        layout(location = 0) in vec3 vertex_position;
-        layout(location = 1) in vec3 vertex_color;
-        uniform mat4 model_matrix;
-        uniform mat4 view_projection_matrix;
-        out vec3 color;
-        void main() {
-            color = vertex_color;
-            gl_Position = view_projection_matrix * model_matrix * vec4(vertex_position, 1.0);
-        }
-        )";
-
-    const char* fragment_shader = 
-        R"(#version 460
-        in vec3 color;
-        out vec4 frag_color;
-        void main() {
-           frag_color = vec4(color, 1.0);
-        }
-        )";
-
-    std::unique_ptr<ShaderProgram> p_shader_program;
-    std::unique_ptr<VertexBuffer> p_positions_colors_vbo;
-    std::unique_ptr<IndexBuffer> p_index_buffer;
-    std::unique_ptr<VertexArray> p_vao;
-    float scale[3] = { 1.f, 1.f, 1.f };
-    float rotate = 0.f;
-    float translate[3] = { 0.f, 0.f, 0.f };
-
-    float camera_position[3] = { 0.f, 0.f, 1.f };
-    float camera_rotation[3] = { 0.f, 0.f, 0.f };
-    bool perspective_camera = false;
-    Camera camera;
-
 	Window::Window(std::string title, const unsigned int width, const unsigned int height)
         :m_data({ std::move(title), width, height })
 	{
@@ -144,90 +91,11 @@ namespace RubyEngine
 
         UIModule::on_window_create(m_pWindow);
 
-        p_shader_program = std::make_unique<ShaderProgram>(vertex_shader, fragment_shader);
-        if (!p_shader_program->isCompiled())
-        {
-            return false;
-        }
-
-        BufferLayout buffer_layout_2vec3
-        {
-            ShaderDataType::Float3,
-            ShaderDataType::Float3
-        };
-
-        p_vao = std::make_unique<VertexArray>();
-        p_positions_colors_vbo = std::make_unique<VertexBuffer>(positions_colors, sizeof(positions_colors), buffer_layout_2vec3);
-        p_index_buffer = std::make_unique<IndexBuffer>(indices, sizeof(indices) / sizeof(GLuint));
-
-        p_vao->add_vertex_buffer(*p_positions_colors_vbo);
-        p_vao->set_index_buffer(*p_index_buffer);
-
         return 0;
 	}
 
     void Window::on_update()
     {
-        Renderer_OpenGL::set_clear_color(m_background_color[0], m_background_color[1], m_background_color[2], m_background_color[3]);
-        Renderer_OpenGL::clear();
-
-        p_shader_program->bind();
-        // SCALE
-        glm::mat4 scale_matrix(
-            scale[0],   0,          0,          0,
-            0,          scale[1],   0,          0,
-            0,          0,          scale[2],   0,
-            0,          0,          0,          1
-        );
-        //
-        
-        // ROTATE
-        float rotate_radians = glm::radians(rotate);
-
-        glm::mat4 rotate_matrix(
-            cos(rotate_radians), sin(rotate_radians),  0,  0,
-           -sin(rotate_radians), cos(rotate_radians),  0,  0,
-            0,                        0,                        1,  0,
-            0,                        0,                        0,  1
-        );
-        //
-        
-        // TRANSLATE
-        glm::mat4 translate_matrix(
-            1,            0,            0,            0,
-            0,            1,            0,            0,
-            0,            0,            1,            0,
-            translate[0], translate[1], translate[2], 1
-        );
-        //
-        glm::mat4 model_matrix = translate_matrix * rotate_matrix * scale_matrix;
-        p_shader_program->setMatrix4("model_matrix", model_matrix);
-
-        camera.set_position_rotation(
-            glm::vec3(camera_position[0], camera_position[1], camera_position[2]),
-            glm::vec3(camera_rotation[0], camera_rotation[1], camera_rotation[2])
-        );
-        camera.set_projection_mode(perspective_camera ? Camera::ProjectionMode::Perspective : Camera::ProjectionMode::Orthogonal);
-
-        p_shader_program->setMatrix4("view_projection_matrix", camera.get_projection_matrix() * camera.get_view_matrix());
-
-        Renderer_OpenGL::draw(*p_vao);
-
-        UIModule::on_ui_draw_begin();
-        bool show = true;
-        UIModule::ShowExampleAppDockSpace(&show);
-        ImGui::ShowDemoWindow();
-        ImGui::Begin("Background Color");
-        ImGui::ColorEdit4("Change color", m_background_color);
-        ImGui::SliderFloat3("Scale", scale, 0.f, 2.f);
-        ImGui::SliderFloat("Rotation", &rotate, 0.f, 360.f);
-        ImGui::SliderFloat3("Translation", translate, -1.f, 1.f);
-        ImGui::SliderFloat3("Camera position", camera_position, -10.f, 10.f);
-        ImGui::SliderFloat3("Camera rotation", camera_rotation, 0.f, 360.f);
-        ImGui::Checkbox("Perspective", &perspective_camera);
-        ImGui::End();
-        UIModule::on_ui_draw_end();
-
         glfwSwapBuffers(m_pWindow);
         glfwPollEvents();
     }
