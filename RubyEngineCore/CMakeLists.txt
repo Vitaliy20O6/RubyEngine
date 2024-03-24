@@ -7,6 +7,9 @@ set(ENGINE_PUBLIC_INCLUDES
 	includes/RubyEngineCore/Logs.hpp
 	includes/RubyEngineCore/Event.hpp
 	includes/RubyEngineCore/Camera.hpp
+	includes/RubyEngineCore/Keys.hpp
+	includes/RubyEngineCore/Input.hpp
+
 )
 
 set(ENGINE_PRIVATE_INCLUDES
@@ -23,6 +26,7 @@ set(ENGINE_PRIVATE_SOURCES
 	src/RubyEngineCore/Application.cpp
 	src/RubyEngineCore/Window.cpp
 	src/RubyEngineCore/Camera.cpp
+	src/RubyEngineCore/Input.cpp
 	src/RubyEngineCore/Rendering/OpenGL/ShaderProgram.cpp
 	src/RubyEngineCore/Rendering/OpenGL/VertexBuffer.cpp
 	src/RubyEngineCore/Rendering/OpenGL/VertexArray.cpp

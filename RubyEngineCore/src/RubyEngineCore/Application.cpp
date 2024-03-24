@@ -98,6 +98,20 @@ namespace RubyEngine
 				m_bCloseWindow = true;
 			}
 		);
+
+		m_event_dispatcher.add_event_listener<EventKeyPressed>(
+			[](EventKeyPressed& event)
+			{
+				LOG_INFO("[KeyPressed] {0}", (char)event.key_code);
+			}
+		);
+
+		m_event_dispatcher.add_event_listener<EventKeyReleased>(
+			[](EventKeyReleased& event)
+			{
+				LOG_INFO("[KeyReleased] {0}", (char)event.key_code);
+			}
+		);
 		
 		m_pWindow->set_event_callback(
 			[&](BaseEvent& event)
