@@ -10,55 +10,98 @@ class RubyEngineEditor :public RubyEngine::Application
 	int frame = 0;
 	virtual void on_update() override
 	{
+		bool move_camera = false;
+
+		glm::vec3 movement_delta{ 0, 0, 0 };
+		glm::vec3 rotation_delta{ 0, 0, 0 };
+
 		//translation
 		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_W))
 		{
-			camera_position[2] -= 0.01f;
+			movement_delta.x += 0.01f;
+			move_camera = true;
 		}
 		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_S))
 		{
-			camera_position[2] += 0.01f;
+			movement_delta.x -= 0.01f;
+			move_camera = true;
 		}
 		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_D))
 		{
-			camera_position[0] += 0.01f;
+			movement_delta.y += 0.01f;
+			move_camera = true;
 		}
 		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_A))
 		{
-			camera_position[0] -= 0.01f;
+			movement_delta.y -= 0.01f;
+			move_camera = true;
 		}
 		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_SPACE))
 		{
-			camera_position[1] += 0.01f;
+			movement_delta.z += 0.01f;
+			move_camera = true;
 		}
 		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_LEFT_CONTROL))
 		{
-			camera_position[1] -= 0.01f;
+			movement_delta.z -= 0.01f;
+			move_camera = true;
 		}
 
 		//rotation
 		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_RIGHT))
 		{
-			camera_rotation[1] -= 0.5f;
+			rotation_delta.z += 0.5f;
+			move_camera = true;
 		}
 		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_LEFT))
 		{
-			camera_rotation[1] += 0.5f;
+			rotation_delta.z -= 0.5f;
+			move_camera = true;
 		}
 		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_UP))
 		{
-			camera_rotation[0] += 0.5f;
+			rotation_delta.y += 0.5f;
+			move_camera = true;
 		}
 		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_DOWN))
 		{
-			camera_rotation[0] -= 0.5f;
+			rotation_delta.y -= 0.5f;
+			move_camera = true;
+		}
+		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_Q))
+		{
+			rotation_delta.x -= 0.5f;
+			move_camera = true;
+		}
+		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_E))
+		{
+			rotation_delta.x += 0.5f;
+			move_camera = true;
+		}
+		if (move_camera)
+		{
+			camera.add_movement_and_rotation(movement_delta, rotation_delta);
 		}
 	}
 	virtual void on_ui_draw() override
 	{
+		camera_position[0] = camera.get_camera_position().x;
+		camera_position[1] = camera.get_camera_position().y;
+		camera_position[2] = camera.get_camera_position().z;
+
+		camera_rotation[0] = camera.get_camera_rotation().x;
+		camera_rotation[1] = camera.get_camera_rotation().y;
+		camera_rotation[2] = camera.get_camera_rotation().z;
+
 		ImGui::Begin("Editor");
-		ImGui::SliderFloat3("Camera position", camera_position, -10.f, 10.f);
-		ImGui::SliderFloat3("Camera rotation", camera_rotation, 0.f, 360.f);
+		if (ImGui::SliderFloat3("Camera position", camera_position, -10.f, 10.f))
+		{
+			camera.set_position(glm::vec3(camera_position[0], camera_position[1], camera_position[2]));
+		}
+		if (ImGui::SliderFloat3("Camera rotation", camera_rotation, 0.f, 360.f));
+		{
+			camera.set_rotation(glm::vec3(camera_rotation[0], camera_rotation[1], camera_rotation[2]));
+		}
 		ImGui::Checkbox("Perspective", &perspective_camera);
 		ImGui::End();
 	}
