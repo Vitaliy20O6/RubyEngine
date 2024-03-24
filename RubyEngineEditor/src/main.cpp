@@ -14,6 +14,8 @@ class RubyEngineEditor :public RubyEngine::Application
 
 	virtual void on_update() override
 	{
+		bool move_camera = false;
+
 		glm::vec3 movement_delta{ 0, 0, 0 };
 		glm::vec3 rotation_delta{ 0, 0, 0 };
 
@@ -21,84 +23,71 @@ class RubyEngineEditor :public RubyEngine::Application
 
 		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_W))
 		{
-			movement_delta.x += 0.025f;
+			movement_delta.x += 0.01f;
+			move_camera = true;
 		}
 		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_S))
 		{
-			movement_delta.x -= 0.025f;
+			movement_delta.x -= 0.01f;
+			move_camera = true;
 		}
 		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_D))
 		{
-			movement_delta.y += 0.025f;
+			movement_delta.y += 0.01f;
+			move_camera = true;
 		}
 		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_A))
 		{
-			movement_delta.y -= 0.025f;
+			movement_delta.y -= 0.01f;
+			move_camera = true;
 		}
 		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_SPACE))
 		{
-			movement_delta.z += 0.025f;
+			movement_delta.z += 0.01f;
+			move_camera = true;
 		}
 		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_LEFT_CONTROL))
 		{
-			movement_delta.z -= 0.025f;
+			movement_delta.z -= 0.01f;
+			move_camera = true;
 		}
 		//rotation
 		
 		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_RIGHT))
 		{
 			rotation_delta.z += 0.5f;
+			move_camera = true;
 		}
 		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_LEFT))
 		{
 			rotation_delta.z -= 0.5f;
+			move_camera = true;
 		}
 		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_UP))
 		{
 			rotation_delta.y += 0.5f;
+			move_camera = true;
 		}
 		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_DOWN))
 		{
 			rotation_delta.y -= 0.5f;
+			move_camera = true;
 		}
 		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_Q))
 		{
 			rotation_delta.x -= 0.5f;
+			move_camera = true;
 		}
 		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_E))
 		{
 			rotation_delta.x += 0.5f;
+			move_camera = true;
 		}
-
-		if (RubyEngine::Input::is_mouse_button_pressed(RubyEngine::MouseButton::MOUSE_BUTTON_RIGHT))
+		if (move_camera)
 		{
-			glm::vec2 current_cursor_position = get_current_cursor_pos();
-			if (RubyEngine::Input::is_mouse_button_pressed(RubyEngine::MouseButton::MOUSE_BUTTON_LEFT))
-			{
-				camera.move_right(static_cast<float>(current_cursor_position.x - m_initial_mouse_pos_x) / 100.f);
-				camera.move_up(static_cast<float>(m_initial_mouse_pos_y - current_cursor_position.y) / 100.f);
-			}
-			else
-			{
-				rotation_delta.z += static_cast<float>(m_initial_mouse_pos_x - current_cursor_position.x) / 5.f;
-				rotation_delta.y -= static_cast<float>(m_initial_mouse_pos_y - current_cursor_position.y) / 5.f;
-			}
-			m_initial_mouse_pos_x = current_cursor_position.x;
-			m_initial_mouse_pos_y = current_cursor_position.y;
+			camera.add_movement_and_rotation(movement_delta, rotation_delta);
 		}
-
-		camera.add_movement_and_rotation(movement_delta, rotation_delta);
 	}
-
-	virtual void on_mouse_button_event(const RubyEngine::MouseButton mouse_button,
-									   const double x_pos, 
-									   const double y_pos,
-									   const bool pressed) override
-	{
-		m_initial_mouse_pos_x = x_pos;
-		m_initial_mouse_pos_y = y_pos;
-	}
-
 	virtual void on_ui_draw() override
 	{
 		camera_position[0] = camera.get_camera_position().x;
