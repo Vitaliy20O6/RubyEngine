@@ -2,6 +2,7 @@
 #include "RubyEngineCore/Logs.hpp"
 #include "RubyEngineCore/Window.hpp"
 #include "RubyEngineCore/Camera.hpp"
+#include "RubyEngineCore/Input.hpp"
 
 #include "RubyEngineCore/Rendering/OpenGL/ShaderProgram.hpp"
 #include "RubyEngineCore/Rendering/OpenGL/VertexBuffer.hpp"
@@ -102,14 +103,29 @@ namespace RubyEngine
 		m_event_dispatcher.add_event_listener<EventKeyPressed>(
 			[](EventKeyPressed& event)
 			{
-				LOG_INFO("[KeyPressed] {0}", (char)event.key_code);
+				if (event.key_code <= KeyCode::KEY_Z)
+				{
+					if (event.repeated)
+					{
+						LOG_INFO("[KeyPressed] {0}, Repeated", static_cast<char>(event.key_code));
+					}
+					else
+					{
+						LOG_INFO("[KeyPressed] {0}", static_cast<char>(event.key_code));
+					}
+				}				
+				Input::PressKey(event.key_code);
 			}
 		);
 
 		m_event_dispatcher.add_event_listener<EventKeyReleased>(
 			[](EventKeyReleased& event)
 			{
-				LOG_INFO("[KeyReleased] {0}", (char)event.key_code);
+				if (event.key_code <= KeyCode::KEY_Z)
+				{
+					LOG_INFO("[KeyReleased] {0}", static_cast<char>(event.key_code));
+				}
+				Input::ReleaseKey(event.key_code);
 			}
 		);
 		

@@ -2,6 +2,7 @@
 #include <memory>
 #include <imgui/imgui.h>
 
+#include <RubyEngineCore/Input.hpp>
 #include <RubyEngineCore/Application.hpp>
 
 class RubyEngineEditor :public RubyEngine::Application
@@ -9,7 +10,49 @@ class RubyEngineEditor :public RubyEngine::Application
 	int frame = 0;
 	virtual void on_update() override
 	{
-		//std::cout << "Update frame: " << frame++ << std::endl;
+		//translation
+		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_W))
+		{
+			camera_position[2] -= 0.01f;
+		}
+		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_S))
+		{
+			camera_position[2] += 0.01f;
+		}
+		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_D))
+		{
+			camera_position[0] += 0.01f;
+		}
+		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_A))
+		{
+			camera_position[0] -= 0.01f;
+		}
+		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_SPACE))
+		{
+			camera_position[1] += 0.01f;
+		}
+		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_LEFT_CONTROL))
+		{
+			camera_position[1] -= 0.01f;
+		}
+
+		//rotation
+		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_RIGHT))
+		{
+			camera_rotation[1] -= 0.5f;
+		}
+		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_LEFT))
+		{
+			camera_rotation[1] += 0.5f;
+		}
+		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_UP))
+		{
+			camera_rotation[0] += 0.5f;
+		}
+		if (RubyEngine::Input::is_key_pressed(RubyEngine::KeyCode::KEY_DOWN))
+		{
+			camera_rotation[0] -= 0.5f;
+		}
 	}
 	virtual void on_ui_draw() override
 	{
