@@ -134,43 +134,4 @@ namespace RubyEngine
 			return type;
 		}
 	};
-
-	struct EventMouseButtonPressed : public BaseEvent
-	{
-		double x_pos;
-		double y_pos;
-		MouseButton mouse_button;
-		static const EventType type = EventType::MouseButtonKeyPressed;
-
-		EventMouseButtonPressed(const MouseButton mouse_button, const double x_pos, const double y_pos)
-			: mouse_button(mouse_button)
-			, x_pos(x_pos)
-			, y_pos(y_pos)
-		{}
-
-		virtual EventType get_type() const override
-		{
-			return type;
-		}
-	};
-
-	struct EventMouseButtonReleased : public BaseEvent
-	{
-		double x_pos;
-		double y_pos;
-		MouseButton mouse_button;
-		static const EventType type = EventType::MouseButtonKeyReleased;
-
-		EventMouseButtonReleased(const MouseButton mouse_button, const double x_pos, const double y_pos)
-			: mouse_button(mouse_button)
-			, x_pos(x_pos)
-			, y_pos(y_pos)
-		{
-		}
-
-		virtual EventType get_type() const override
-		{
-			return type;
-		}
-	};
 }
