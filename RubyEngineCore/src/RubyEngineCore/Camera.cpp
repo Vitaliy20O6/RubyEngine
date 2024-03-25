@@ -19,8 +19,8 @@ namespace RubyEngine
 	void Camera::update_view_matrix()
 	{
 		const float roll_radians	= glm::radians(m_rotation.x);
-		const float pitch_radians = glm::radians(m_rotation.y);
-		const float yaw_radians	= glm::radians(m_rotation.z);
+		const float pitch_radians	= glm::radians(m_rotation.y);
+		const float yaw_radians		= glm::radians(m_rotation.z);
 
 		// ROTATE
 		// x

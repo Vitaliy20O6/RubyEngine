@@ -15,7 +15,7 @@ namespace RubyEngine
 		KeyPressed,
 		KeyReleased,
 
-		MouseButtonPressed,
+		MouseButtonKeyPressed,
 		MouseButtonKeyReleased,
 		MouseMoved,
 
@@ -61,13 +61,13 @@ namespace RubyEngine
 
 	struct EventMouseMoved: public BaseEvent
 	{
-		double x;
-		double y;
+		double x_pos;
+		double y_pos;
 		static const EventType type = EventType::MouseMoved;
 
 		EventMouseMoved(const double new_x, const double new_y)
-			: x(new_x)
-			, y(new_y)
+			: x_pos(new_x)
+			, y_pos(new_y)
 		{}
 
 		virtual EventType get_type() const override
@@ -128,6 +128,45 @@ namespace RubyEngine
 		EventKeyReleased(const KeyCode key_code)
 			: key_code(key_code)
 		{}
+
+		virtual EventType get_type() const override
+		{
+			return type;
+		}
+	};
+
+	struct EventMouseButtonPressed : public BaseEvent
+	{
+		double x_pos;
+		double y_pos;
+		MouseButton mouse_button;
+		static const EventType type = EventType::MouseButtonKeyPressed;
+
+		EventMouseButtonPressed(const MouseButton mouse_button, const double x_pos, const double y_pos)
+			: mouse_button(mouse_button)
+			, x_pos(x_pos)
+			, y_pos(y_pos)
+		{}
+
+		virtual EventType get_type() const override
+		{
+			return type;
+		}
+	};
+
+	struct EventMouseButtonReleased : public BaseEvent
+	{
+		double x_pos;
+		double y_pos;
+		MouseButton mouse_button;
+		static const EventType type = EventType::MouseButtonKeyReleased;
+
+		EventMouseButtonReleased(const MouseButton mouse_button, const double x_pos, const double y_pos)
+			: mouse_button(mouse_button)
+			, x_pos(x_pos)
+			, y_pos(y_pos)
+		{
+		}
 
 		virtual EventType get_type() const override
 		{

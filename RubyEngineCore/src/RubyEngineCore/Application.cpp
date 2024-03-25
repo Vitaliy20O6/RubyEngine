@@ -9,8 +9,8 @@
 #include "RubyEngineCore/Rendering/OpenGL/VertexBuffer.hpp"
 #include "RubyEngineCore/Rendering/OpenGL/VertexArray.hpp"
 #include "RubyEngineCore/Rendering/OpenGL/IndexBuffer.hpp"
+#include "RubyEngineCore/Camera.hpp"
 #include "RubyEngineCore/Rendering/OpenGL/Renderer_OpenGL.hpp"
-
 #include "RubyEngineCore/Modules/UIModule.hpp"
 
 #include <imgui/imgui.h>
