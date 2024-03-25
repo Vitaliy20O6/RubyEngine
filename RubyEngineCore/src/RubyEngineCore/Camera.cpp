@@ -125,7 +125,7 @@ namespace RubyEngine
 		update_view_matrix();
 	}
 
-	void Camera::add_movement_and_rotation(const glm::vec3 movement_delta, const glm::vec3 rotation_delta)
+	void Camera::add_movement_and_rotation(const glm::vec3& movement_delta, const glm::vec3& rotation_delta)
 	{
 		m_position += m_direction	* movement_delta.x;
 		m_position += m_right		* movement_delta.y;

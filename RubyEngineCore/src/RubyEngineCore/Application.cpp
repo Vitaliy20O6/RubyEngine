@@ -2,6 +2,7 @@
 #include "RubyEngineCore/Logs.hpp"
 #include "RubyEngineCore/Window.hpp"
 #include "RubyEngineCore/Camera.hpp"
+#include "RubyEngineCore/Event.hpp"
 #include "RubyEngineCore/Input.hpp"
 
 #include "RubyEngineCore/Rendering/OpenGL/ShaderProgram.hpp"
@@ -62,7 +63,7 @@ namespace RubyEngine
 	float rotate = 0.f;
 	float translate[3] = { 0.f, 0.f, 0.f };
 
-	float m_background_color[4] = { 0.f, 0.f, 0.f, 0.f };
+	float m_background_color[4] = { 0.3125f, 0.078125f, 0.46875f, 0.f };
 
 	Application::Application()
 	{
@@ -101,7 +102,7 @@ namespace RubyEngine
 		);
 
 		m_event_dispatcher.add_event_listener<EventKeyPressed>(
-			[](EventKeyPressed& event)
+			[&](EventKeyPressed& event)
 			{
 				if (event.key_code <= KeyCode::KEY_Z)
 				{
@@ -119,7 +120,7 @@ namespace RubyEngine
 		);
 
 		m_event_dispatcher.add_event_listener<EventKeyReleased>(
-			[](EventKeyReleased& event)
+			[&](EventKeyReleased& event)
 			{
 				if (event.key_code <= KeyCode::KEY_Z)
 				{
