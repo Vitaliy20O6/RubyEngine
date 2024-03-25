@@ -1,15 +1,15 @@
 #include "RubyEngineCore/Application.hpp"
 #include "RubyEngineCore/Logs.hpp"
 #include "RubyEngineCore/Window.hpp"
-#include "RubyEngineCore/Camera.hpp"
+#include "RubyEngineCore/Event.hpp"
 #include "RubyEngineCore/Input.hpp"
 
 #include "RubyEngineCore/Rendering/OpenGL/ShaderProgram.hpp"
 #include "RubyEngineCore/Rendering/OpenGL/VertexBuffer.hpp"
 #include "RubyEngineCore/Rendering/OpenGL/VertexArray.hpp"
 #include "RubyEngineCore/Rendering/OpenGL/IndexBuffer.hpp"
+#include "RubyEngineCore/Camera.hpp"
 #include "RubyEngineCore/Rendering/OpenGL/Renderer_OpenGL.hpp"
-
 #include "RubyEngineCore/Modules/UIModule.hpp"
 
 #include <imgui/imgui.h>
@@ -101,7 +101,7 @@ namespace RubyEngine
 		);
 
 		m_event_dispatcher.add_event_listener<EventKeyPressed>(
-			[](EventKeyPressed& event)
+			[&](EventKeyPressed& event)
 			{
 				if (event.key_code <= KeyCode::KEY_Z)
 				{
@@ -119,7 +119,7 @@ namespace RubyEngine
 		);
 
 		m_event_dispatcher.add_event_listener<EventKeyReleased>(
-			[](EventKeyReleased& event)
+			[&](EventKeyReleased& event)
 			{
 				if (event.key_code <= KeyCode::KEY_Z)
 				{
