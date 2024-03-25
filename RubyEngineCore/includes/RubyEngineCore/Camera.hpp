@@ -24,7 +24,7 @@ namespace RubyEngine
 		void set_position_rotation(const glm::vec3& position, const glm::vec3& rotation);
 		void set_projection_mode(const ProjectionMode projection_mode);
 
-		const glm::mat4& get_view_matrix() const { return m_view_matrix; }
+		const glm::mat4& get_view_matrix();
 		const glm::mat4& get_projection_matrix() const { return m_projection_matrix; }
 
 		void move_forward(const float delta);
@@ -54,10 +54,12 @@ namespace RubyEngine
 		glm::vec3 m_direction;
 
 		static constexpr glm::vec3 s_world_up		{ 0.f, 0.f, 1.f };
-		static constexpr glm::vec3 s_world_right	{ 0.f, 1.f, 0.f };
+		static constexpr glm::vec3 s_world_right	{ 0.f, -1.f, 0.f };
 		static constexpr glm::vec3 s_world_forward	{ 1.f, 0.f, 0.f };
 
 		glm::mat4 m_view_matrix;
 		glm::mat4 m_projection_matrix;
+
+		bool m_update_view_matrix = false;
 	};
 }
