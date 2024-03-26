@@ -123,6 +123,6 @@ int main()
 	auto pRubyEngineEditor = std::make_unique<RubyEngineEditor>();
 
 	int returnCode = pRubyEngineEditor->startApp(1024, 1024, "RubyEngine Editior");
-	std::cin.get();
+	//std::cin.get();
 	return returnCode;
 }

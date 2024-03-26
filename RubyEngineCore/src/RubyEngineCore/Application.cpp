@@ -9,11 +9,10 @@
 #include "RubyEngineCore/Rendering/OpenGL/VertexBuffer.hpp"
 #include "RubyEngineCore/Rendering/OpenGL/VertexArray.hpp"
 #include "RubyEngineCore/Rendering/OpenGL/IndexBuffer.hpp"
-#include "RubyEngineCore/Camera.hpp"
 #include "RubyEngineCore/Rendering/OpenGL/Renderer_OpenGL.hpp"
+#include "RubyEngineCore/Rendering/OpenGL/Texture2D.hpp"
 #include "RubyEngineCore/Modules/UIModule.hpp"
 
-#include <glad/glad.h>
 #include <imgui/imgui.h>
 #include <glm/mat3x3.hpp>
 #include <glm/trigonometric.hpp>
@@ -148,12 +147,16 @@ namespace RubyEngine
         void main() {
 			//frag_color = vec4(color, 1.0);
 			frag_color = texture(InTexture_Smile, tex_coord_smile) * texture(InTexture_Quads, tex_coord_quads);
+			//frag_color = texture(InTexture_Quads, tex_coord_quads);
+			//frag_color = texture(InTexture_Smile, tex_coord_smile);
         }
         )";
 
 	std::unique_ptr<ShaderProgram> p_shader_program;
 	std::unique_ptr<VertexBuffer> p_positions_colors_vbo;
 	std::unique_ptr<IndexBuffer> p_index_buffer;
+	std::unique_ptr<Texture2D> p_texture_smile;
+	std::unique_ptr<Texture2D> p_texture_quads;
 	std::unique_ptr<VertexArray> p_vao;
 	float scale[3] = { 1.f, 1.f, 1.f };
 	float rotate = 0.f;
@@ -257,29 +260,13 @@ namespace RubyEngine
 
 		auto* data = new unsigned char[width * height * channels];
 
-		GLuint textureHandle_Smile;
-		glCreateTextures(GL_TEXTURE_2D, 1, &textureHandle_Smile);
-		glTextureStorage2D(textureHandle_Smile, 1, GL_RGB8, width, height);
-		generate_smile_texture(data,width,height);
-		glTextureSubImage2D(textureHandle_Smile, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glTextureParameteri(textureHandle_Smile, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTextureParameteri(textureHandle_Smile, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTextureParameteri(textureHandle_Smile, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameteri(textureHandle_Smile, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glBindTextureUnit(0, textureHandle_Smile);
+		generate_smile_texture(data, width, height);
+		p_texture_smile = std::make_unique<Texture2D>(data,width,height);
+		p_texture_smile->bind(0);
 
-
-		GLuint textureHandle_Quads;
-		glCreateTextures(GL_TEXTURE_2D, 1, &textureHandle_Quads);
-		glTextureStorage2D(textureHandle_Quads, 1, GL_RGB8, width, height);
 		generate_quads_texture(data, width, height);
-		glTextureSubImage2D(textureHandle_Quads, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glTextureParameteri(textureHandle_Quads, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTextureParameteri(textureHandle_Quads, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTextureParameteri(textureHandle_Quads, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameteri(textureHandle_Quads, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glBindTextureUnit(1, textureHandle_Quads);
-
+		p_texture_quads = std::make_unique<Texture2D>(data, width, height);
+		p_texture_quads->bind(1);
 
 		delete[] data;
 
@@ -374,9 +361,6 @@ namespace RubyEngine
 			m_pWindow->on_update();
 			on_update();
 		}
-
-		glDeleteTextures(1, &textureHandle_Smile);
-		glDeleteTextures(1, &textureHandle_Quads);
 
 		m_pWindow = nullptr;
         return 0;

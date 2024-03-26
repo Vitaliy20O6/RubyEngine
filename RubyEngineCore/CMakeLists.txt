@@ -19,6 +19,7 @@ set(ENGINE_PRIVATE_INCLUDES
 	src/RubyEngineCore/Rendering/OpenGL/VertexArray.hpp
 	src/RubyEngineCore/Rendering/OpenGL/IndexBuffer.hpp
 	src/RubyEngineCore/Rendering/OpenGL/Renderer_OpenGL.hpp
+	src/RubyEngineCore/Rendering/OpenGL/Texture2D.hpp
 	src/RubyEngineCore/Modules/UImodule.hpp
 )
 
@@ -32,6 +33,7 @@ set(ENGINE_PRIVATE_SOURCES
 	src/RubyEngineCore/Rendering/OpenGL/VertexArray.cpp
 	src/RubyEngineCore/Rendering/OpenGL/IndexBuffer.cpp
 	src/RubyEngineCore/Rendering/OpenGL/Renderer_OpenGL.cpp
+	src/RubyEngineCore/Rendering/OpenGL/Texture2D.cpp
 	src/RubyEngineCore/Modules/UImodule.cpp
 )
 set(ENGINE_ALL_SOURCES
