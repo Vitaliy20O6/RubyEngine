@@ -169,13 +169,19 @@ namespace RubyEngine
 
 	float m_background_color[4] = { 0.3125f, 0.078125f, 0.46875f, 0.f };
 
-	std::array<glm::vec3, 5> positions =
+	std::array<glm::vec3, 10> positions =
 	{
 		glm::vec3(-2.f, -2.f, -4.f),
 		glm::vec3(-5.f,  0.f,  3.f),
 		glm::vec3( 2.f,  1.f, -2.f),
 		glm::vec3( 4.f, -3.f,  3.f),
-		glm::vec3( 1.f, -7.f,  1.f)
+		glm::vec3( 1.f, -7.f,  1.f),
+
+		glm::vec3(5.f, 0.f, 5.f),
+		glm::vec3(10.f,  0.f,  5.f),
+		glm::vec3(15.f,  0.f, 5.f),
+		glm::vec3(20.f, 0.f,  5.f),
+		glm::vec3(25.f, 0.f,  5.f)
 	};
 
 	Application::Application()
@@ -188,10 +194,12 @@ namespace RubyEngine
 		LOG_INFO("Closing application");
 	}
 
-	int Application::startApp(unsigned int window_width, unsigned int window_height, const char* title)
+	int Application::start_app(unsigned int window_width, unsigned int window_height, const char* title)
 	{
 		m_pWindow = std::make_unique<Window>(title, window_width, window_height);
-		
+
+		camera.set_viewport_size(static_cast<float>(window_width), static_cast<float>(window_height));
+
 		m_event_dispatcher.add_event_listener<EventMouseMoved>(
 			[](EventMouseMoved& event)
 			{
@@ -200,9 +208,11 @@ namespace RubyEngine
 		);
 
 		m_event_dispatcher.add_event_listener<EventWindowResize>(
-			[](EventWindowResize& event)
+			[&](EventWindowResize& event)
 			{
 				LOG_INFO("[Resized] Changet size to {0}x{1}", event.width, event.height);
+				camera.set_viewport_size(static_cast<float>(event.width), static_cast<float>(event.height));
+				draw();
 			}
 		);
 
@@ -210,7 +220,7 @@ namespace RubyEngine
 			[&](EventWindowClose& event)
 			{
 				LOG_INFO("[WindowClose]");
-				m_bCloseWindow = true;
+				close_app();
 			}
 		);
 
@@ -312,90 +322,83 @@ namespace RubyEngine
 
 		while (!m_bCloseWindow)
 		{
-			Renderer_OpenGL::set_clear_color(m_background_color[0], m_background_color[1], m_background_color[2], m_background_color[3]);
-			Renderer_OpenGL::clear();
-
-			p_shader_program->bind();
-			// SCALE
-			glm::mat4 scale_matrix(
-				scale[0], 0, 0, 0,
-				0, scale[1], 0, 0,
-				0, 0, scale[2], 0,
-				0, 0, 0, 1
-			);
-			//
-
-			// ROTATE
-			float rotate_radians = glm::radians(rotate);
-
-			glm::mat4 rotate_matrix(
-				cos(rotate_radians), sin(rotate_radians), 0, 0,
-				-sin(rotate_radians), cos(rotate_radians), 0, 0,
-				0, 0, 1, 0,
-				0, 0, 0, 1
-			);
-			//
-
-			// TRANSLATE
-			glm::mat4 translate_matrix(
-				1, 0, 0, 0,
-				0, 1, 0, 0,
-				0, 0, 1, 0,
-				translate[0], translate[1], translate[2], 1
-			);
-			//
-			glm::mat4 model_matrix = translate_matrix * rotate_matrix * scale_matrix;
-			p_shader_program->set_matrix4("model_matrix", model_matrix);
-			//p_shader_program->set_int("current_frame", current_frame++);
-
-			camera.set_projection_mode(perspective_camera ? Camera::ProjectionMode::Perspective : Camera::ProjectionMode::Orthogonal);
-
-			p_shader_program->set_matrix4("view_projection_matrix", camera.get_projection_matrix() * camera.get_view_matrix());
-
-			Renderer_OpenGL::draw(*p_vao);
-
-			for (const glm::vec3& current_pos : positions)
-			{
-				glm::mat4 translate_matrix(
-					1, 0, 0, 0,
-					0, 1, 0, 0,
-					0, 0, 1, 0,
-					current_pos[0], current_pos[1], current_pos[2], 1
-				);
-				p_shader_program->set_matrix4("model_matrix", translate_matrix);
-				Renderer_OpenGL::draw(*p_vao);
-
-			}
-
-			//--------------------------------------------------------------//
-			UIModule::on_ui_draw_begin();
-			bool show = true;
-			UIModule::ShowExampleAppDockSpace(&show);
-			ImGui::ShowDemoWindow();
-			ImGui::Begin("Background Color");
-			ImGui::ColorEdit4("Change color", m_background_color);
-			ImGui::SliderFloat3("Scale", scale, 0.f, 2.f);
-			ImGui::SliderFloat("Rotation", &rotate, 0.f, 360.f);
-			ImGui::SliderFloat3("Translation", translate, -1.f, 1.f);
-			ImGui::SliderFloat3("Camera position", camera_position, -10.f, 10.f);
-			ImGui::SliderFloat3("Camera rotation", camera_rotation, 0.f, 360.f);
-			ImGui::Checkbox("Perspective", &perspective_camera);
-			ImGui::End();
-			//--------------------------------------------------------------//
-
-			on_ui_draw();
-			UIModule::on_ui_draw_end();
-
-			m_pWindow->on_update();
-			on_update();
+			draw();
 		}
 
 		m_pWindow = nullptr;
         return 0;
 	}
 
+	void Application::close_app()
+	{
+		m_bCloseWindow = true;
+	}
+
 	glm::vec2 Application::get_current_cursor_position() const
 	{
 		return m_pWindow->get_current_cursor_pos();
+	}
+
+	void Application::draw()
+	{
+		Renderer_OpenGL::set_clear_color(m_background_color[0], m_background_color[1], m_background_color[2], m_background_color[3]);
+		Renderer_OpenGL::clear();
+
+		p_shader_program->bind();
+		// SCALE
+		glm::mat4 scale_matrix(
+			scale[0], 0, 0, 0,
+			0, scale[1], 0, 0,
+			0, 0, scale[2], 0,
+			0, 0, 0, 1
+		);
+		//
+
+		// ROTATE
+		float rotate_radians = glm::radians(rotate);
+
+		glm::mat4 rotate_matrix(
+			cos(rotate_radians), sin(rotate_radians), 0, 0,
+			-sin(rotate_radians), cos(rotate_radians), 0, 0,
+			0, 0, 1, 0,
+			0, 0, 0, 1
+		);
+		//
+
+		// TRANSLATE
+		glm::mat4 translate_matrix(
+			1, 0, 0, 0,
+			0, 1, 0, 0,
+			0, 0, 1, 0,
+			translate[0], translate[1], translate[2], 1
+		);
+		//
+		glm::mat4 model_matrix = translate_matrix * rotate_matrix * scale_matrix;
+		p_shader_program->set_matrix4("model_matrix", model_matrix);
+		//p_shader_program->set_int("current_frame", current_frame++);
+
+		p_shader_program->set_matrix4("view_projection_matrix", camera.get_projection_matrix() * camera.get_view_matrix());
+
+		Renderer_OpenGL::draw(*p_vao);
+
+		for (const glm::vec3& current_pos : positions)
+		{
+			glm::mat4 translate_matrix(
+				1, 0, 0, 0,
+				0, 1, 0, 0,
+				0, 0, 1, 0,
+				current_pos[0], current_pos[1], current_pos[2], 1
+			);
+			p_shader_program->set_matrix4("model_matrix", translate_matrix);
+			Renderer_OpenGL::draw(*p_vao);
+
+		}
+
+		UIModule::on_ui_draw_begin();
+		on_ui_draw();
+		UIModule::on_ui_draw_end();
+
+		m_pWindow->on_update();
+		on_update();
 	}
 }
