@@ -10,6 +10,13 @@ class RubyEngineEditor :public RubyEngine::Application
 {
 	double m_initial_mouse_pos_x = 0.0;
 	double m_initial_mouse_pos_y = 0.0;
+	float camera_position[3] = { 0.f, 0.f, 1.f };
+	float camera_rotation[3] = { 0.f, 0.f, 0.f };
+	float camera_far_plane{ 100.f };
+	float camera_near_plane{ 0.1f };
+	float camera_fov{ 110.f };
+	bool perspective_camera = true;
+
 
 	virtual void on_update() override
 	{
@@ -159,6 +166,16 @@ class RubyEngineEditor :public RubyEngine::Application
 		camera_near_plane = camera.get_near_clip_plane();
 
 		ImGui::Begin("Editor");
+
+		ImGui::SliderFloat3("Light source position", light_source_position, -10.f, 10.f);
+		ImGui::ColorEdit3("Light source color", light_source_color);
+		ImGui::SliderFloat("Ambient factor", &ambient_factor, 0.f, 1.f);
+		ImGui::SliderFloat("Diffuse factor", &diffuse_factor, 0.f, 1.f);
+		ImGui::SliderFloat("Specular factor", &specular_factor, 0.f, 1.f);
+		ImGui::SliderFloat("Shininess", &shininess, 1.f, 128.f);
+
+		ImGui::Separator();
+
 		if (ImGui::SliderFloat3("Camera position", camera_position, -10.f, 10.f))
 		{
 			camera.set_position(glm::vec3(camera_position[0], camera_position[1], camera_position[2]));
@@ -179,10 +196,14 @@ class RubyEngineEditor :public RubyEngine::Application
 		{
 			camera.set_near_clip_plane(camera_near_plane);
 		}
+
+		ImGui::Separator();
+
 		if (ImGui::Checkbox("Perspective", &perspective_camera))
 		{
 			camera.set_projection_mode(perspective_camera ? RubyEngine::Camera::ProjectionMode::Perspective : RubyEngine::Camera::ProjectionMode::Orthogonal);
 		}
+
 		ImGui::End();
 	}
 };
