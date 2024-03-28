@@ -17,7 +17,7 @@ namespace RubyEngine
 		glTextureParameteri(m_id, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTextureParameteri(m_id, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTextureParameteri(m_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTextureParameteri(m_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTextureParameteri(m_id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glGenerateTextureMipmap(m_id);
 	}
 

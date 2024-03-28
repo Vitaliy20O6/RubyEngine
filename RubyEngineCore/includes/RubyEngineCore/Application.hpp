@@ -30,14 +30,14 @@ namespace RubyEngine
 
 		glm::vec2 get_current_cursor_position() const;
 
-		float camera_position[3] = { 0.f, 0.f, 1.f };
-		float camera_rotation[3] = { 0.f, 0.f, 0.f };
-		float camera_far_plane{ 100.f };
-		float camera_near_plane{ 0.1f };
-		float camera_fov{ 60.f };
-
-		bool perspective_camera = true;
 		Camera camera{ glm::vec3(-5, 0, 0) };
+
+		float light_source_position[3] = { 0.f, 0.f, 1.f };
+		float light_source_color[3] = { 1.f, 1.f, 1.f };
+		float ambient_factor { 0.1f };
+		float diffuse_factor { 1.0f };
+		float specular_factor { 0.5f };
+		float shininess { 32.f };
 
 	private:
 		std::unique_ptr<class Window> m_pWindow;

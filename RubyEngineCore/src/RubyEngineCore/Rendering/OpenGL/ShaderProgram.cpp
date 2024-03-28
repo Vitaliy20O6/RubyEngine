@@ -117,8 +117,23 @@ namespace RubyEngine
         glUniformMatrix4fv(glGetUniformLocation(m_id, name), 1, GL_FALSE, glm::value_ptr(matrix));
     }
 
+    void ShaderProgram::set_matrix3(const char* name, const glm::mat3& matrix) const
+    {
+        glUniformMatrix3fv(glGetUniformLocation(m_id, name), 1, GL_FALSE, glm::value_ptr(matrix));
+    }
+
     void ShaderProgram::set_int(const char* name, const int value) const
     {
         glUniform1i(glGetUniformLocation(m_id, name), value);
+    }
+
+    void ShaderProgram::set_float(const char* name, const float value) const
+    {
+        glUniform1f(glGetUniformLocation(m_id, name), value);
+    }
+
+    void ShaderProgram::set_vec3(const char* name, const glm::vec3& value) const
+    {
+        glUniform3f(glGetUniformLocation(m_id, name), value.x, value.y, value.z);
     }
 }
